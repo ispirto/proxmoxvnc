@@ -12,9 +12,9 @@ import (
 	"sync"
 	"time"
 
-	"newproxmoxvnc/internal/config"
-	"newproxmoxvnc/internal/logger"
-	"newproxmoxvnc/internal/proxyprocess"
+	"github.com/ispirto/proxmoxvnc/internal/config"
+	"github.com/ispirto/proxmoxvnc/internal/logger"
+	"github.com/ispirto/proxmoxvnc/internal/proxyprocess"
 )
 
 // TokenSession represents a pending VNC session created via /create endpoint

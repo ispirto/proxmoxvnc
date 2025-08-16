@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"newproxmoxvnc/internal/logger"
-	"newproxmoxvnc/pkg/api/interfaces"
+	"github.com/ispirto/proxmoxvnc/internal/logger"
+	"github.com/ispirto/proxmoxvnc/pkg/api/interfaces"
 )
 
 // Client is a Proxmox API client

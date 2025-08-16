@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"newproxmoxvnc/internal/logger"
+	"github.com/ispirto/proxmoxvnc/internal/logger"
 )
 
 // HTTPClient wraps the standard HTTP client with Proxmox-specific functionality

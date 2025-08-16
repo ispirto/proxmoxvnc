@@ -1,6 +1,6 @@
 package api
 
-import "newproxmoxvnc/internal/logger"
+import "github.com/ispirto/proxmoxvnc/internal/logger"
 
 // ClientOptions holds optional configuration for the client
 type ClientOptions struct {

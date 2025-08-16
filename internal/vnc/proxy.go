@@ -11,8 +11,8 @@ import (
 
 	"github.com/gorilla/websocket"
 
-	"newproxmoxvnc/internal/logger"
-	"newproxmoxvnc/pkg/api"
+	"github.com/ispirto/proxmoxvnc/internal/logger"
+	"github.com/ispirto/proxmoxvnc/pkg/api"
 )
 
 // ProxyConfig holds configuration for the VNC WebSocket proxy

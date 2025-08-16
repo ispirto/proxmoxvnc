@@ -11,8 +11,8 @@ import (
 	"sync"
 	"time"
 
-	"newproxmoxvnc/internal/logger"
-	"newproxmoxvnc/pkg/api"
+	"github.com/ispirto/proxmoxvnc/internal/logger"
+	"github.com/ispirto/proxmoxvnc/pkg/api"
 )
 
 // Server provides an HTTP server for VNC connections

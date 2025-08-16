@@ -7,10 +7,10 @@ import (
 	"strings"
 	"time"
 
-	"newproxmoxvnc/internal/config"
-	"newproxmoxvnc/internal/logger"
-	"newproxmoxvnc/internal/vnc"
-	"newproxmoxvnc/pkg/api"
+	"github.com/ispirto/proxmoxvnc/internal/config"
+	"github.com/ispirto/proxmoxvnc/internal/logger"
+	"github.com/ispirto/proxmoxvnc/internal/vnc"
+	"github.com/ispirto/proxmoxvnc/pkg/api"
 )
 
 // ProxyProcess manages the lifecycle of a VNC proxy connection to a VM

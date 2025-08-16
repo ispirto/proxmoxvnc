@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-	"newproxmoxvnc/internal/logger"
+	"github.com/ispirto/proxmoxvnc/internal/logger"
 )
 
 const (
