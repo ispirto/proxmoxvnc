@@ -770,8 +770,11 @@ The general idea of implementation and some initial code patterns were inspired 
 
 ## License
 
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
 This project includes:
 - **noVNC v1.6.0** - Licensed under MPL 2.0 (unmodified)
+- Code patterns inspired by **proxmox-tui** - MIT License
 
 ## Acknowledgments
 
