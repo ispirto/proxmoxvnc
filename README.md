@@ -762,6 +762,10 @@ Session management:
 - **Efficient Routing**: Path-based not regex
 - **Minimal Copying**: Direct WebSocket relay
 
+## Development
+
+This project was almost entirely written by [Claude Code](https://claude.ai/code), Anthropic's AI coding assistant, in collaboration with a human developer. The clean architecture, comprehensive documentation, and production-ready features demonstrate the capabilities of AI-assisted development.
+
 ## License
 
 This project includes:
@@ -769,6 +773,7 @@ This project includes:
 
 ## Acknowledgments
 
+- [Claude Code](https://claude.ai/code) - AI coding assistant that wrote the majority of this codebase
 - [noVNC](https://github.com/novnc/noVNC) - HTML5 VNC client
 - [Proxmox VE](https://www.proxmox.com/) - Virtualization platform
 - [Gorilla WebSocket](https://github.com/gorilla/websocket) - WebSocket library
