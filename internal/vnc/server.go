@@ -2,6 +2,7 @@ package vnc
 
 import (
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"net"
@@ -23,19 +24,21 @@ type Server struct {
 	mu           sync.Mutex
 	running      bool
 	logger       *logger.Logger
-	publicIP     string            // Public IP for URL generation
+	publicHost   string            // Public host (IP or domain) for URL generation
 	vncParams    map[string]string // VNC parameters for secure access
 	novncPath    string            // Path to noVNC files on disk
+	tlsConfig    *tls.Config       // TLS configuration for HTTPS
+	useTLS       bool              // Whether to use TLS/HTTPS
 }
 
 
 // NewServer creates a new HTTP server with a shared logger
 func NewServer(sharedLogger *logger.Logger) *Server {
-	return NewServerWithIP(sharedLogger, "")
+	return NewServerWithHost(sharedLogger, "")
 }
 
-// NewServerWithIP creates a new HTTP server with logger and public IP
-func NewServerWithIP(sharedLogger *logger.Logger, publicIP string) *Server {
+// NewServerWithHost creates a new HTTP server with logger and public host
+func NewServerWithHost(sharedLogger *logger.Logger, publicHost string) *Server {
 	var serverLogger *logger.Logger
 	
 	if sharedLogger != nil {
@@ -60,22 +63,53 @@ func NewServerWithIP(sharedLogger *logger.Logger, publicIP string) *Server {
 	}
 	
 	server := &Server{
-		logger:    serverLogger,
-		vncParams: make(map[string]string),
-		publicIP:  publicIP,
-		novncPath: novncPath,
+		logger:     serverLogger,
+		vncParams:  make(map[string]string),
+		publicHost: publicHost,
+		novncPath:  novncPath,
+		useTLS:     false,
 	}
 	
-	if publicIP != "" {
-		serverLogger.Info("Using configured public IP: %s", server.publicIP)
+	if publicHost != "" {
+		serverLogger.Info("Using configured public host: %s", server.publicHost)
 	} else {
-		serverLogger.Info("No public IP configured, using localhost")
-		server.publicIP = "localhost"
+		serverLogger.Info("No public host configured, using localhost")
+		server.publicHost = "localhost"
 	}
 	
 	serverLogger.Info("Using noVNC files from: %s", novncPath)
 	
 	return server
+}
+
+// SetTLSConfig sets up TLS configuration from certificate files
+func (s *Server) SetTLSConfig(certFile, keyFile string) error {
+	if certFile == "" || keyFile == "" {
+		s.logger.Debug("No TLS certificate paths provided, using HTTP")
+		return nil
+	}
+	
+	// Check if certificate files exist
+	if _, err := os.Stat(certFile); err != nil {
+		return fmt.Errorf("TLS certificate file not found: %s", certFile)
+	}
+	if _, err := os.Stat(keyFile); err != nil {
+		return fmt.Errorf("TLS key file not found: %s", keyFile)
+	}
+	
+	// Load the certificate
+	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
+	if err != nil {
+		return fmt.Errorf("failed to load TLS certificates: %w", err)
+	}
+	
+	s.tlsConfig = &tls.Config{
+		Certificates: []tls.Certificate{cert},
+	}
+	s.useTLS = true
+	s.logger.Info("TLS certificates loaded successfully for HTTPS")
+	
+	return nil
 }
 
 // SetNoVNCPath allows setting a custom path for noVNC files
@@ -141,9 +175,13 @@ func (s *Server) StartVMVNCServerWithSession(client *api.Client, vm *api.VM, ses
 	s.mu.Unlock()
 	
 	// Generate simple noVNC URL without exposing parameters
-	vncURL := fmt.Sprintf("http://%s:%d/", s.publicIP, s.port)
+	protocol := "http"
+	if s.useTLS {
+		protocol = "https"
+	}
+	vncURL := fmt.Sprintf("%s://%s:%d/", protocol, s.publicHost, s.port)
 	
-	s.logger.Info("VM VNC server started successfully for %s on port %d", vm.Name, s.port)
+	s.logger.Info("VM VNC server started successfully for %s on port %d (TLS: %v)", vm.Name, s.port, s.useTLS)
 	s.logger.Debug("VM VNC URL generated: %s (parameters stored securely)", vncURL)
 	
 	return vncURL, nil
@@ -246,21 +284,35 @@ func (s *Server) startHTTPServer() error {
 		ReadTimeout:  0,                // No timeout for WebSocket connections
 		WriteTimeout: 0,                // No timeout for WebSocket connections
 		IdleTimeout:  10 * time.Minute, // 10 minutes idle timeout
+		TLSConfig:    s.tlsConfig,       // Use TLS config if available
 	}
 	
-	s.logger.Debug("Starting HTTP server on %s", s.httpServer.Addr)
+	protocol := "HTTP"
+	if s.useTLS {
+		protocol = "HTTPS"
+	}
+	s.logger.Debug("Starting %s server on %s", protocol, s.httpServer.Addr)
 	
 	// Start server in background
 	go func() {
-		if err := s.httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			s.logger.Error("HTTP server error: %v", err)
+		var err error
+		if s.useTLS && s.tlsConfig != nil {
+			// Start HTTPS server using the loaded certificates
+			err = s.httpServer.ListenAndServeTLS("", "")  // Empty strings because certs are in TLSConfig
+		} else {
+			// Start regular HTTP server
+			err = s.httpServer.ListenAndServe()
+		}
+		
+		if err != nil && err != http.ErrServerClosed {
+			s.logger.Error("%s server error: %v", protocol, err)
 		} else if err == http.ErrServerClosed {
-			s.logger.Debug("HTTP server closed normally")
+			s.logger.Debug("%s server closed normally", protocol)
 		}
 	}()
 	
 	s.running = true
-	s.logger.Info("HTTP server started successfully on port %d", s.port)
+	s.logger.Info("%s server started successfully on port %d", protocol, s.port)
 	
 	return nil
 }

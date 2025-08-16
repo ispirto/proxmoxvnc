@@ -99,13 +99,18 @@ func (pp *ProxyProcess) StartVMProxy(vmID int) (*ProxyResult, error) {
 	vncLogger := logger.CreateComponentLogger("VNC-SERVICE")
 	pp.service = vnc.NewService(apiClient, vncLogger)
 	
-	if publicIP := pp.routerConfig.GetPublicIP(); publicIP != "" {
-		pp.service.SetPublicIP(publicIP)
+	if publicHost := pp.routerConfig.GetPublicHost(); publicHost != "" {
+		pp.service.SetPublicHost(publicHost)
 	}
 	
 	// Set custom noVNC path if configured
 	if pp.routerConfig.NoVNCPath != "" {
 		pp.service.SetNoVNCPath(pp.routerConfig.NoVNCPath)
+	}
+	
+	// Set TLS configuration if provided
+	if pp.routerConfig.TLSCertFile != "" && pp.routerConfig.TLSKeyFile != "" {
+		pp.service.SetTLSConfig(pp.routerConfig.TLSCertFile, pp.routerConfig.TLSKeyFile)
 	}
 	
 	vncURL, session, err := pp.service.ConnectToVMEmbedded(vm)

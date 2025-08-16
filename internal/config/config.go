@@ -18,8 +18,8 @@ type Config struct {
 	LoggingLevel   string `json:"logging_level"`
 	LogFile        string `json:"log_file,omitempty"`
 	
-	// Public IP configuration for VNC URLs
-	PublicIP string `json:"public_ip"`
+	// Public host configuration for VNC URLs (can be IP or domain)
+	PublicHost string `json:"public_host"`
 	
 	// Router binding configuration
 	RouterIP   string `json:"router_ip,omitempty"`   // IP to bind the router to (default: 0.0.0.0)
@@ -27,6 +27,10 @@ type Config struct {
 	
 	// NoVNC path for static file serving (optional)
 	NoVNCPath string `json:"novnc_path,omitempty"`
+	
+	// TLS/HTTPS configuration (optional)
+	TLSCertFile string `json:"tls_cert_file,omitempty"` // Path to TLS certificate file
+	TLSKeyFile  string `json:"tls_key_file,omitempty"`  // Path to TLS private key file
 }
 
 // ProxmoxConfig represents the Proxmox connection parameters passed via API
@@ -71,8 +75,8 @@ func LoadConfig(filepath string) (*Config, error) {
 	if config.Authorization == "" {
 		return nil, fmt.Errorf("authorization is required in config")
 	}
-	if config.PublicIP == "" {
-		return nil, fmt.Errorf("public_ip is required in config")
+	if config.PublicHost == "" {
+		return nil, fmt.Errorf("public_host is required in config")
 	}
 	
 	// Set default router port if not specified
@@ -88,9 +92,9 @@ func (c *Config) GetAuthorization() string {
 	return c.Authorization
 }
 
-// GetPublicIP returns the configured public IP
-func (c *Config) GetPublicIP() string {
-	return c.PublicIP
+// GetPublicHost returns the configured public host (IP or domain)
+func (c *Config) GetPublicHost() string {
+	return c.PublicHost
 }
 
 // GetRouterPort returns the configured router port (default: 9999)

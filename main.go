@@ -437,7 +437,7 @@ func main() {
 	
 	logger.Info("Starting VNC Router on port %d", port)
 	logger.Info("Router will bind to: %s:%d", cfg.GetRouterIP(), port)
-	logger.Info("Public IP for VNC URLs: %s", cfg.PublicIP)
+	logger.Info("Public host for VNC URLs: %s", cfg.PublicHost)
 	
 	router := NewVNCRouter(cfg, *configPath)
 	
@@ -454,7 +454,7 @@ func main() {
 	// Bind to router IP (can be different from public IP)
 	addr := fmt.Sprintf("%s:%d", cfg.GetRouterIP(), port)
 	logger.Info("VNC Router listening on %s", addr)
-	logger.Info("Access the service at http://%s:%d/", cfg.PublicIP, port)
+	logger.Info("Access the service at http://%s:%d/", cfg.PublicHost, port)
 	
 	if err := http.ListenAndServe(addr, nil); err != nil {
 		logger.Fatal("Failed to start server: %v", err)

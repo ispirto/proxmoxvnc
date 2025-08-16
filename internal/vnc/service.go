@@ -51,15 +51,21 @@ func (s *Service) UpdateClient(client *api.Client) {
 	s.sessionManager.UpdateClient(client)
 }
 
-func (s *Service) SetPublicIP(publicIP string) {
+func (s *Service) SetPublicHost(publicHost string) {
 	if s.sessionManager != nil {
-		s.sessionManager.SetPublicIP(publicIP)
+		s.sessionManager.SetPublicHost(publicHost)
 	}
 }
 
 func (s *Service) SetNoVNCPath(path string) {
 	if s.sessionManager != nil {
 		s.sessionManager.SetNoVNCPath(path)
+	}
+}
+
+func (s *Service) SetTLSConfig(certFile, keyFile string) {
+	if s.sessionManager != nil {
+		s.sessionManager.SetTLSConfig(certFile, keyFile)
 	}
 }
 

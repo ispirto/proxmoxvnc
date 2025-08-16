@@ -263,7 +263,7 @@ sudo systemctl start proxmoxvnc
   "logging_enabled": true,
   "logging_level": "info",
   "log_file": "logs/proxy.log",
-  "public_ip": "203.0.113.10",
+  "public_host": "203.0.113.10",
   "router_ip": "0.0.0.0",
   "router_port": 9999,
   "novnc_path": "./internal/vnc/novnc"
@@ -276,7 +276,7 @@ sudo systemctl start proxmoxvnc
 | `logging_enabled` | Enable or disable logging output | No | true |
 | `logging_level` | Log verbosity level: `debug`, `info`, or `error` | No | info |
 | `log_file` | Where to write logs: `stderr`, `stdout`, or a file path (e.g., `logs/proxy.log`) | No | stderr |
-| `public_ip` | Public IP address that clients will use to access VNC sessions. This appears in URLs given to end users | Yes | - |
+| `public_host` | Public host (IP address or domain) that clients will use to access VNC sessions. This appears in URLs given to end users | Yes | - |
 | `router_ip` | IP address to bind the router service to. Use `0.0.0.0` for all interfaces, `127.0.0.1` for localhost only | No | 0.0.0.0 |
 | `router_port` | Port number for the router service to listen on | No | 9999 |
 | `novnc_path` | Path to noVNC static files directory (can be relative or absolute) | No | ./internal/vnc/novnc |
@@ -300,7 +300,7 @@ sudo systemctl start proxmoxvnc
   "logging_enabled": true,
   "logging_level": "info",
   "log_file": "logs/proxy.log",
-  "public_ip": "203.0.113.10",  // External NAT IP
+  "public_host": "203.0.113.10",  // External NAT IP
   "router_ip": "192.168.1.100",  // Internal private IP
   "router_port": 9999
 }
@@ -312,7 +312,7 @@ sudo systemctl start proxmoxvnc
   "authorization": "your-secret-token-here",
   "logging_enabled": true,
   "logging_level": "info",
-  "public_ip": "proxy.example.com",  // Reverse proxy domain
+  "public_host": "proxy.example.com",  // Reverse proxy domain
   "router_ip": "127.0.0.1",          // Bind to localhost only
   "router_port": 9999
 }

@@ -139,8 +139,10 @@ type SessionManager struct {
 	sessionCountCallback SessionCountCallback
 	mutex                sync.RWMutex
 	sessionTimeout       time.Duration
-	publicIP             string
+	publicHost           string // Public host (IP or domain) for URL generation
 	novncPath            string // Path to noVNC files
+	tlsCertFile          string // Path to TLS certificate
+	tlsKeyFile           string // Path to TLS key
 }
 
 
@@ -180,12 +182,12 @@ func (sm *SessionManager) UpdateClient(client *api.Client) {
 	sm.client = client
 }
 
-func (sm *SessionManager) SetPublicIP(publicIP string) {
+func (sm *SessionManager) SetPublicHost(publicHost string) {
 	sm.mutex.Lock()
 	defer sm.mutex.Unlock()
-	sm.publicIP = publicIP
-	if sm.logger != nil && publicIP != "" {
-		sm.logger.Info("Session manager using configured public IP: %s", publicIP)
+	sm.publicHost = publicHost
+	if sm.logger != nil && publicHost != "" {
+		sm.logger.Info("Session manager using configured public host: %s", publicHost)
 	}
 }
 
@@ -195,6 +197,16 @@ func (sm *SessionManager) SetNoVNCPath(path string) {
 	sm.novncPath = path
 	if sm.logger != nil && path != "" {
 		sm.logger.Info("Session manager using noVNC path: %s", path)
+	}
+}
+
+func (sm *SessionManager) SetTLSConfig(certFile, keyFile string) {
+	sm.mutex.Lock()
+	defer sm.mutex.Unlock()
+	sm.tlsCertFile = certFile
+	sm.tlsKeyFile = keyFile
+	if sm.logger != nil && certFile != "" && keyFile != "" {
+		sm.logger.Info("Session manager using TLS certificates: cert=%s, key=%s", certFile, keyFile)
 	}
 }
 
@@ -250,13 +262,21 @@ func (sm *SessionManager) CreateSession(ctx context.Context, sessionType Session
 	
 	// Create and start VNC server with its own logger
 	serverLogger := logger.CreateComponentLogger("VNC-SERVER")
-	server := NewServerWithIP(serverLogger, sm.publicIP)
+	server := NewServerWithHost(serverLogger, sm.publicHost)
 	
 	// Set custom noVNC path if configured
 	if sm.novncPath != "" {
 		if err := server.SetNoVNCPath(sm.novncPath); err != nil {
 			sm.logger.Error("Failed to set noVNC path: %v", err)
 			// Continue with default path
+		}
+	}
+	
+	// Set TLS configuration if available
+	if sm.tlsCertFile != "" && sm.tlsKeyFile != "" {
+		if err := server.SetTLSConfig(sm.tlsCertFile, sm.tlsKeyFile); err != nil {
+			sm.logger.Error("Failed to set TLS config: %v", err)
+			// Continue without TLS
 		}
 	}
 	
