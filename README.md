@@ -24,6 +24,7 @@ A secure, token-based VNC proxy service for Proxmox Virtual Environment that pro
 - 🔐 **Token-Based Authentication** - One-time tokens for secure VNC access
 - 🛡️ **Complete Proxmox Isolation** - No exposure of Proxmox credentials, IPs, or cookies to end users
 - 🌐 **Pure Web-Based** - Uses vanilla noVNC v1.6.0, no browser plugins required
+- 🔒 **HTTPS/TLS Support** - Serve VNC sessions over HTTPS with valid SSL certificates
 - 🔑 **Dynamic Credentials** - Proxmox connection details provided per-request via API
 - 📦 **Universal VM Support** - Works with both QEMU VMs and LXC containers
 - 🔄 **Automatic Cleanup** - Sessions and tokens auto-expire with configurable timeouts
@@ -205,11 +206,21 @@ sudo make install
 ### Quick Start
 
 ```bash
-# Download example configuration
-curl -L https://raw.githubusercontent.com/ispirto/proxmoxvnc/main/config.json.example -o config.json
+# Create configuration file
+cat > config.json <<EOF
+{
+  "authorization": "$(openssl rand -hex 32)",
+  "logging_enabled": true,
+  "logging_level": "info",
+  "public_host": "your-server-ip-or-domain",
+  "router_ip": "0.0.0.0",
+  "router_port": 9999
+}
+EOF
 
-# Edit config.json with your settings
-vim config.json
+# For HTTPS support, add TLS configuration:
+# "tls_cert_file": "/path/to/cert.pem",
+# "tls_key_file": "/path/to/key.pem"
 
 # Start the router
 proxmoxvnc -config config.json
@@ -280,6 +291,8 @@ sudo systemctl start proxmoxvnc
 | `router_ip` | IP address to bind the router service to. Use `0.0.0.0` for all interfaces, `127.0.0.1` for localhost only | No | 0.0.0.0 |
 | `router_port` | Port number for the router service to listen on | No | 9999 |
 | `novnc_path` | Path to noVNC static files directory (can be relative or absolute) | No | ./internal/vnc/novnc |
+| `tls_cert_file` | Path to TLS certificate file for HTTPS VNC sessions (e.g., Let's Encrypt fullchain.pem) | No | - |
+| `tls_key_file` | Path to TLS private key file for HTTPS VNC sessions (e.g., Let's Encrypt privkey.pem) | No | - |
 
 ### Configuration Examples
 
@@ -318,11 +331,53 @@ sudo systemctl start proxmoxvnc
 }
 ```
 
+#### HTTPS/TLS Configuration (with Let's Encrypt)
+```json
+{
+  "authorization": "your-secret-token-here",
+  "logging_enabled": true,
+  "logging_level": "info",
+  "public_host": "vnc.example.com",  // Your domain name
+  "router_ip": "0.0.0.0",
+  "router_port": 9999,
+  "tls_cert_file": "/etc/letsencrypt/live/vnc.example.com/fullchain.pem",
+  "tls_key_file": "/etc/letsencrypt/live/vnc.example.com/privkey.pem"
+}
+```
+
+With TLS configured, VNC sessions will be served over HTTPS with valid certificates.
+
+### HTTPS/TLS Setup
+
+For secure HTTPS VNC sessions, you can use Let's Encrypt certificates:
+
+```bash
+# Install certbot (if not already installed)
+sudo apt install certbot
+
+# Get certificate for your domain
+sudo certbot certonly --standalone -d vnc.example.com
+
+# Update config.json with certificate paths
+{
+  "public_host": "vnc.example.com",
+  "tls_cert_file": "/etc/letsencrypt/live/vnc.example.com/fullchain.pem",
+  "tls_key_file": "/etc/letsencrypt/live/vnc.example.com/privkey.pem",
+  ...
+}
+```
+
+When TLS is configured:
+- Main router: `https://vnc.example.com/` (or custom port)
+- VNC sessions: `https://vnc.example.com:<dynamic-port>/`
+- All connections use valid SSL certificates
+
 ### Security Note
 
 - Use strong, random authorization tokens (minimum 32 characters)
 - Rotate authorization tokens regularly
 - Keep config.json readable only by the service user
+- For production, always use HTTPS with valid certificates
 
 ## Usage Guide
 
@@ -723,6 +778,7 @@ Using vanilla noVNC v1.6.0 served from disk
 3. **Dynamic configuration** via `/mandatory.json`
 4. **No patches required** for upgrades
 5. **Standard compliance** with noVNC protocols
+6. **Complete bundle** - Includes all vendor dependencies (pako compression library)
 
 ### WebSocket Proxy Implementation
 
