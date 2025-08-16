@@ -167,29 +167,29 @@ Download the latest release for your platform:
 
 ```bash
 # Linux (amd64)
-curl -L https://github.com/yourusername/proxmoxvnc/releases/latest/download/proxmoxvnc-linux-amd64.tar.gz | tar xz
+curl -L https://github.com/ispirto/proxmoxvnc/releases/latest/download/proxmoxvnc-linux-amd64.tar.gz | tar xz
 sudo mv proxmoxvnc /usr/local/bin/
 
 # macOS (Apple Silicon)
-curl -L https://github.com/yourusername/proxmoxvnc/releases/latest/download/proxmoxvnc-darwin-arm64.tar.gz | tar xz
+curl -L https://github.com/ispirto/proxmoxvnc/releases/latest/download/proxmoxvnc-darwin-arm64.tar.gz | tar xz
 sudo mv proxmoxvnc /usr/local/bin/
 
 # macOS (Intel)
-curl -L https://github.com/yourusername/proxmoxvnc/releases/latest/download/proxmoxvnc-darwin-amd64.tar.gz | tar xz
+curl -L https://github.com/ispirto/proxmoxvnc/releases/latest/download/proxmoxvnc-darwin-amd64.tar.gz | tar xz
 sudo mv proxmoxvnc /usr/local/bin/
 ```
 
 ### Method 2: Install with Go
 
 ```bash
-go install github.com/yourusername/proxmoxvnc@latest
+go install github.com/ispirto/proxmoxvnc@latest
 ```
 
 ### Method 3: Build from Source
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/proxmoxvnc.git
+git clone https://github.com/ispirto/proxmoxvnc.git
 cd proxmoxvnc
 
 # Build with make
@@ -206,7 +206,7 @@ sudo make install
 
 ```bash
 # Download example configuration
-curl -L https://raw.githubusercontent.com/yourusername/proxmoxvnc/main/config.json.example -o config.json
+curl -L https://raw.githubusercontent.com/ispirto/proxmoxvnc/main/config.json.example -o config.json
 
 # Edit config.json with your settings
 vim config.json

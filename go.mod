@@ -1,4 +1,4 @@
-module newproxmoxvnc
+module github.com/ispirto/proxmoxvnc
 
 go 1.21
 
