@@ -1,0 +1,38 @@
+# Configuration files
+config.json
+config.yml
+config.yaml
+
+# Binaries
+vncrouter
+proxmoxvnc
+
+# Log files
+logs/
+*.log
+
+# Go build artifacts
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test binaries
+*.test
+
+# Output of the go coverage tool
+*.out
+
+# Dependency directories
+vendor/
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db

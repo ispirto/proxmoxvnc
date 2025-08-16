@@ -1,0 +1,80 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build and Release
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.21'
+        
+    - name: Get dependencies
+      run: go mod download
+      
+    - name: Build binaries
+      run: |
+        # Build for multiple platforms
+        mkdir -p dist
+        
+        # Linux
+        GOOS=linux GOARCH=amd64 go build -o dist/proxmoxvnc-linux-amd64 .
+        GOOS=linux GOARCH=arm64 go build -o dist/proxmoxvnc-linux-arm64 .
+        
+        # macOS
+        GOOS=darwin GOARCH=amd64 go build -o dist/proxmoxvnc-darwin-amd64 .
+        GOOS=darwin GOARCH=arm64 go build -o dist/proxmoxvnc-darwin-arm64 .
+        
+        # Windows
+        GOOS=windows GOARCH=amd64 go build -o dist/proxmoxvnc-windows-amd64.exe .
+        
+    - name: Create archives
+      run: |
+        mkdir -p releases
+        VERSION=${GITHUB_REF#refs/tags/}
+        
+        # Create tar.gz for Unix systems
+        tar czf releases/proxmoxvnc-${VERSION}-linux-amd64.tar.gz -C dist proxmoxvnc-linux-amd64 -C .. config.json.example README.md
+        tar czf releases/proxmoxvnc-${VERSION}-linux-arm64.tar.gz -C dist proxmoxvnc-linux-arm64 -C .. config.json.example README.md
+        tar czf releases/proxmoxvnc-${VERSION}-darwin-amd64.tar.gz -C dist proxmoxvnc-darwin-amd64 -C .. config.json.example README.md
+        tar czf releases/proxmoxvnc-${VERSION}-darwin-arm64.tar.gz -C dist proxmoxvnc-darwin-arm64 -C .. config.json.example README.md
+        
+        # Create zip for Windows
+        cd dist && zip -j ../releases/proxmoxvnc-${VERSION}-windows-amd64.zip proxmoxvnc-windows-amd64.exe ../config.json.example ../README.md && cd ..
+        
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: releases/*
+        draft: false
+        prerelease: false
+        generate_release_notes: true
+        body: |
+          ## Installation
+          
+          ### Quick Install (Linux/macOS)
+          ```bash
+          # Download and install latest release
+          curl -L https://github.com/${{ github.repository }}/releases/latest/download/proxmoxvnc-linux-amd64.tar.gz | tar xz
+          sudo mv proxmoxvnc /usr/local/bin/
+          ```
+          
+          ### From Source
+          ```bash
+          go install github.com/${{ github.repository }}@latest
+          ```
+          
+          See [README](https://github.com/${{ github.repository }}#installation) for more details.

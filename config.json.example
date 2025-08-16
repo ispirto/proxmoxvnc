@@ -1,0 +1,10 @@
+{
+  "authorization": "your-secret-authorization-token-here",
+  "logging_enabled": true,
+  "logging_level": "info",
+  "log_file": "logs/proxy.log",
+  "public_ip": "your-public-ip-or-domain",
+  "router_ip": "0.0.0.0",
+  "router_port": 9999,
+  "novnc_path": "./internal/vnc/novnc"
+}
