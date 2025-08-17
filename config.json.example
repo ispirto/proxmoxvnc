@@ -1,0 +1,12 @@
+{
+  "authorization": "very-secure",
+  "logging_enabled": true,
+  "logging_level": "error",
+  "log_file": "proxmoxvnc.log",
+  "public_host": "your-server-ip-or-domain",
+  "router_ip": "0.0.0.0",
+  "router_port": 9999,
+  "novnc_path": "./internal/vnc/novnc",
+  "tls_cert_file": "/path/fullchain.pem",
+  "tls_key_file": "/path/privkey.pem"
+}
